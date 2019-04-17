@@ -1,5 +1,5 @@
 function [Q, fitobject] = fitQuadratic(Smn, k_dash, l_dash)
-    SmnLogAbs = log(abs(Smn));
+    SmnLogAbs = log10(abs(Smn).^2);
     
     % 3x3 neighborhood centered at (k_dash, l_dash)
     % if k_dash or l_dash is 1 or size(Smn, 1) or size(Smn, 2)

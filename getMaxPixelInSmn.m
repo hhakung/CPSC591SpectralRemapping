@@ -1,6 +1,6 @@
 function [res] = getMaxPixelInSmn(Smn, R)
     % get max
-    SmnAbs = abs(Smn);
+    SmnAbs = log10(abs(Smn).^2);
     [M_Smn, N_Smn] = size(SmnAbs);
     for i = 1:M_Smn
         for j = 1:N_Smn
@@ -12,7 +12,7 @@ function [res] = getMaxPixelInSmn(Smn, R)
         end
     end
     
-    % imshow(uint8(SmnAbs));
+%     figure, imagesc(SmnAbs);
     
     [M, I] = max(SmnAbs);
     [M1, I1] = max(M);

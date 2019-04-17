@@ -1,13 +1,16 @@
 function [waves] = getWaves(patch, window, R)
     patch = patch.*window;
-    imshow(patch);
+%     figure, imshow(patch);
+%     title('original image with Gaussian');
     Smn = fftshift(fft2(patch));
-    imshow(uint8(abs(Smn)));
+%     figure, imagesc(log10(abs(Smn).^2));
+%     title('DFT of the original image with Gaussian');
     
     [M, N] = size(Smn);
     waves = [];
     alpha_max = 0;
     currentEnergy = sum(sum(conj(Smn).*Smn));
+    WmnCumul = zeros(M, N);
 
     while size(waves) < 10
         % Find indices of maximum value in |Smn|
@@ -58,7 +61,7 @@ function [waves] = getWaves(patch, window, R)
         end
 
         % compute amplitude alpha_dash
-        alpha_dash = computeAmplitude(Q, a_dash_raw, b_dash_raw, window);
+        alpha_dash = computeAmplitude(Q, a_dash/M, b_dash/N, a_dash_raw, b_dash_raw, window);
 
         % break if alpha_dash < alpha_max/4; else alpha_max =
         % max(alpha_dash, alpha_max)
@@ -77,7 +80,7 @@ function [waves] = getWaves(patch, window, R)
         end
 
         Wmn0 = fftshift(fft2(w.*window));
-        d = sum(sum(conj(Wmn0).*Smn));
+        d = sum(sum(transpose(Wmn0)*Smn));
         c1 = mod(atan2(-imag(d), real(d))/(2*pi), 1);
         c2 = mod(atan2(imag(d), -real(d))/(2*pi), 1);
         f1 = cos(2*pi*c1)*real(d) - sin(2*pi*c1)*imag(d);
@@ -87,31 +90,32 @@ function [waves] = getWaves(patch, window, R)
         else
             wave(4) = c2;
         end
-
-        % remove detected wave from Smn
-        Wmn = Wmn0 * exp(2 * pi * sqrt(-1) * wave(4));
-%         imshow(uint8(abs(Wmn)));
-        SmnOld = Smn;
-        SmnTemp = Smn - Wmn;
-        energyTemp = sum(sum(SmnTemp.*conj(SmnTemp)));
         
-        if energyTemp >= currentEnergy
-            Smn = Smn + Wmn;
-        else
-            Smn = Smn - Wmn;
-        end
-%         imshow(uint8(abs(Smn)));
-
-        % break if energy ||Smn||^2 did not decrease
-        energy = sum(sum(Smn.*conj(Smn)));
-        if energy >= currentEnergy
+        Wmn = Wmn0 * exp(2 * pi * sqrt(-1) * wave(4));
+        
+        % break if energy ||Smn||^2 does not decrease
+        SmnOld = Smn;
+        Smn = Smn - Wmn;
+        newEnergy = sum(sum(conj(Smn).*Smn));
+        if newEnergy >= currentEnergy
             Smn = SmnOld;
             break;
         end
-        currentEnergy = energy;
+        
+        WmnCumul = WmnCumul + Wmn;
+        currentEnergy = newEnergy;
         waves = [waves;wave];
     end
     
-    imshow(uint8(abs(Smn)));
-    imshow(abs(ifft2(ifftshift(Smn))));
+%     figure, imagesc(log10(abs(Smn).^2));
+%     title('new Smn');
+%     
+%     figure, imagesc(log10(abs(WmnCumul).^2));
+%     title('cumulated Wmn');
+%     
+%     figure, imshow(abs(ifft2(ifftshift(Smn))));
+%     title('residual');
+%     
+%     figure, imshow(abs(ifft2(ifftshift(WmnCumul))));
+%     title('Image outside the spectral Circle');
 end
