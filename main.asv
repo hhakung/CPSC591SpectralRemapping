@@ -18,22 +18,14 @@ window = getGaussian2D(M, N, sigma);
 allWaves{1, 1} = getWaves(s, window, R);
 remappedWaves = remap(allWaves, R);
 
-WmnRemapped = zeros(M, N);
 for i = 1:size(remappedWaves{1, 1}, 1)
     w = zeros(M, N);
-    for m = 1:M
-        for n = 1:N
-            w(m, n) = remappedWaves{1, 1}(i, 1) * exp(2 * pi * sqrt(-1) * (remappedWaves{1, 1}(i, 2) * m + remappedWaves{1, 1}(i, 3) * n + remappedWaves{1, 1}(i, 4)));
+        for m = 1:M
+            for n = 1:N
+                w(m, n) = wave(1) * exp(2 * pi * sqrt(-1) * (wave(2) * m + wave(3) * n + 0));
+            end
         end
-    end
-    WmnRemapped = WmnRemapped + fftshift(fft2(w.*window));
 end
-
-figure, imagesc(log10(abs(WmnRemapped).^2));
-title('Sum of All the Remapped Non-representable Waves');
-
-figure, imshow(abs(ifft2(ifftshift(WmnRemapped))));
-title('Image of Remapped Non-representable Waves');
 
 % for i = 26:26:M-25
 %     for j = 26:26:N-25

@@ -114,8 +114,8 @@ function [waves] = getWaves(patch, window, R)
     title('Sum of All the Non-representable Waves');
     
     figure, imshow(abs(ifft2(ifftshift(Smn))));
-    title('Image After Removal of Non-representable Waves');
+    title('Image After Removal of Non-representable W');
     
     figure, imshow(abs(ifft2(ifftshift(WmnCumul))));
-    title('Image of Non-representable Waves');
+    title('Image outside the spectral Circle');
 end
